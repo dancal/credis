@@ -24,23 +24,23 @@ Credis also includes a way for developers to fully utilize the scalability of Re
 Using the Credis_Cluster class, you can use Credis the same way, except that keys will be hashed across multiple servers.
 Here is how to set up a cluster:
 
-require 'credis/Client.php';
-require 'credis/Cluster.php';
+	require 'credis/Client.php';
+	require 'credis/Cluster.php';
 
-$nTimeout   = 0.5;
-$sServers   ='192.168.0.10:8000-8007;192.168.0.11:8008-8015;192.168.0.12:8016-8023;192.168.0.13:8024-8031';
-$nMaxRetry  = 2;
+	$nTimeout   = 0.5;
+	$sServers   ='192.168.0.10:8000-8007;192.168.0.11:8008-8015;192.168.0.12:8016-8023;192.168.0.13:8024-8031';
+	$nMaxRetry  = 2;
 
-try {
+	try {
 
-    $cluster = new Credis_Cluster($sServers, $nTimeout, $nMaxRetry);
-    //$cluster->set('key','test data');
-    echo $cluster->get('key') . "\n";
-    $cluster->close();
+    	$cluster = new Credis_Cluster($sServers, $nTimeout, $nMaxRetry);
+	    //$cluster->set('key','test data');
+    	echo $cluster->get('key') . "\n";
+	    $cluster->close();
 
-} catch (Exception $e) {
-    syslog(LOG_NOTICE, $e->getMessage() );
-}
+	} catch (Exception $e) {
+    	syslog(LOG_NOTICE, $e->getMessage() );
+	}
 
 ## About
 
