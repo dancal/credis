@@ -61,23 +61,54 @@ class Credis_Cluster
    * @param array $servers The Redis servers in the cluster.
    * @param int $replicas
    */
-  public function __construct($servers, $replicas = 128)
-  {
+	public function __construct($servers, $timeout, $retry, $replicas = 128) {
+
+		$rServers   = array();
+		foreach ( $lsServer as $k => $list ) {
+    		$temp       = explode(":", $list);
+		    $host       = $temp[0];
+		    $port       = $temp[1];
+
+		    $lsport     = explode("-", $port);;
+		    $sport      = $lsport[0];
+		    $eport      = $lsport[1];
+		    for ( $i = $sport; $i <= $eport; $i++ ) {
+        		$rSvrItem   = array('host'=>$host, 'port' => $i, 'timeout' => $nTimeout);
+		        array_push($rServers, $rSvrItem);
+		    }
+
+	}
+
     $this->clients = array();
     $this->aliases = array();
     $this->ring = array();
     $clientNum = 0;
-    foreach ($servers as $server)
-    {
-      $client = new Credis_Client($server['host'], $server['port'], isset($server['timeout']) ? $server['timeout'] : 2.5);
-      $this->clients[] = $client;
-      if (isset($server['alias'])) {
-        $this->aliases[$server['alias']] = $client;
-      }
-      for ($replica = 0; $replica <= $replicas; $replica++) {
-        $this->ring[crc32($server['host'].':'.$server['port'].'-'.$replica)] = $clientNum;
-      }
-      $clientNum++;
+
+	$lsServer   = explode(";", trim($servers,";"));
+    foreach ( $lsServer as $k => $list ) {
+
+    	$temp       = explode(":", $list);
+        $host       = $temp[0];
+        $port       = $temp[1];
+
+        $lsport     = explode("-", $port);;
+        $sport      = $lsport[0];
+        $eport      = $lsport[1];
+
+      	$client = new Credis_Client($host, $port, $timeout);
+	  	$client->maxConnectRetries($retry);
+	  	$client->setReadTimeout(0.5);
+
+      	$this->clients[] = $client;
+
+      	if (isset($server['alias'])) {
+        	$this->aliases[$server['alias']] = $client;
+      	}
+      	for ($replica = 0; $replica <= $replicas; $replica++) {
+        	$this->ring[crc32($server['host'].':'.$server['port'].'-'.$replica)] = $clientNum;
+      	}
+		$clientNum++;
+
     }
     ksort($this->ring, SORT_NUMERIC);
     $this->nodes = array_keys($this->ring);

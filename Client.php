@@ -231,7 +231,7 @@ class Credis_Client {
      * @param float $timeout  Timeout period in seconds
      * @param string $persistent  Flag to establish persistent connection
      */
-    public function __construct($host = '127.0.0.1', $port = 6379, $timeout = 2.5, $persistent = '')
+    public function __construct($host = '127.0.0.1', $port = 6379, $timeout = 2.5, $persistent = true)
     {
         $this->host = (string) $host;
         $this->port = (int) $port;
